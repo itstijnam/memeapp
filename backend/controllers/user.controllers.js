@@ -161,3 +161,51 @@ export const getSuggestedUsers = async (req, res)=>{
         console.log(`Error :: controller :: user.controller :: getSuggestedUsers :: error: ${error}`);
     }
 }
+
+export const followerOrUnfollow = async (req,res)=>{
+    try {
+        const followKarneWaala = req.id // mtlb main
+        const jiskoFollowKarunga =  req.params.id //jo follow hoga
+
+        if(followKarneWaala === jiskoFollowKarunga){
+            return res.status(400).json({
+                message: `You can't follow yourself account`,
+                success: false
+            })
+        }
+
+        const user = await User.findById(followKarneWaala);
+        const targetUser = await User.findById(jiskoFollowKarunga);
+
+        if(!user || !targetUser){
+            return res.status(400).json({
+                message: 'User not found',
+                success:false
+            })
+        }
+
+        const isFollowing = user.following.includes(jiskoFollowKarunga);
+        if(isFollowing){
+            await Promise.all([
+                User.updateOne({_id: followKarneWaala}, {$pull:{following: jiskoFollowKarunga}}),
+                User.updateOne({_id: jiskoFollowKarunga}, {$pull:{followers: followKarneWaala}})
+            ])
+            return res.status(200).json({
+                message: 'Unfollowed successful',
+                success: true
+            })
+        }else{
+            await Promise.all([
+                User.updateOne({_id: followKarneWaala}, {$push:{following: jiskoFollowKarunga}}),
+                User.updateOne({_id: jiskoFollowKarunga}, {$push:{followers: followKarneWaala}})
+            ])
+            return res.status(200).json({
+                message: 'Followed successful',
+                success: true
+            })
+        }
+
+    } catch (error) {
+        console.log(error);
+    }
+}
