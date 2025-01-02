@@ -4,11 +4,12 @@ import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import connectDB from "./utils/db.js";
 import userRoute from './routes/user.route.js'
-
+import path from 'path'
 dotenv.config({});
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use('/uploads', express.static(path.join('./uploads')));
 
 app.get('/', (_, res)=>{
     return res.status(200).json({
