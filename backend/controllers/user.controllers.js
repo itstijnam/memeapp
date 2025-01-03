@@ -117,7 +117,7 @@ export const editProfile = async(req, res)=>{
         const {bio, gender} = req.body;
         const profilePicture = req.file;
 
-        const user = await User.findById(userId);
+        const user = await User.findById(userId).select('-password');
         if(!user){
             return res.status(404).json({
                 message: 'User not found',
@@ -142,22 +142,30 @@ export const editProfile = async(req, res)=>{
     }
 }
 
-export const getSuggestedUsers = async (req, res)=>{
+export const getSuggestedUsers = async (req, res) => {
     try {
-        const suggestedUsers = await User.findById({_id:{$ne:req.id}}).select('-password');
-        if(!suggestedUsers){
+        // Exclude the current user from the suggested users list
+        const suggestedUsers = await User.find({ 
+            _id: { $ne: req.id }
+        }).select('-password'); // Exclude the password field
+        
+        if (!suggestedUsers || suggestedUsers.length === 0) {
             return res.status(400).json({
-                message: 'Cuurently do not have any users',
-            })
-        };
+                message: 'Currently no suggested users',
+                success: false
+            });
+        }
+
         return res.status(200).json({
-            success:true,
-            users:suggestedUsers
-        })
+            success: true,
+            users: suggestedUsers
+        });
+
     } catch (error) {
         console.log(`Error :: controller :: user.controller :: getSuggestedUsers :: error: ${error}`);
     }
 }
+
 
 export const followerOrUnfollow = async (req,res)=>{
     try {
