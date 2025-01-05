@@ -1,6 +1,7 @@
 import { User } from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import jwt from 'jsonwebtoken';
+import { Post } from "../models/post.model.js";
 
 
 export const register = async (req, res)=>{
@@ -63,6 +64,17 @@ export const login = async (req, res)=>{
         // yhaa hum user ka data redefine kar rahe aur ensure kar rahe ki uski sensitive information
         // n jaa paaye
         // only woh data jaaye jo ek user ko dikhna chahiye bas
+        const token = jwt.sign({userId: user._id}, process.env.SECRET_KEY, {expiresIn: '1d'});
+
+        const poupulatedPosts = await Promise.all(
+            user.posts.map(async (postId)=>{
+                const post = await Post.findById({postId});
+                if(post.author.equals(user._id)){
+                    return post;
+                }
+                return null;
+            })
+        )
         user = {
             _id:user._id,
             username:user.username,
@@ -71,11 +83,9 @@ export const login = async (req, res)=>{
             bio:user.bio,
             followers:user.followers,
             following:user.following,
-            posts:user.posts
+            posts: poupulatedPosts
         }
 
-        const token = jwt.sign({userId: user._id}, process.env.SECRET_KEY, {expiresIn: '1d'})
-        console.log(token);
         return res.cookie('token', token, {httpOnly: true, sameSite: 'strict', maxAge: 1*24*60*60*1000}).json({
             message: `Welcome ${user.username}`,
             success: true,
@@ -209,7 +219,6 @@ export const followerOrUnfollow = async (req,res)=>{
                 success: true
             })
         }
-
     } catch (error) {
         console.log(error);
     }

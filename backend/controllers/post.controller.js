@@ -3,7 +3,7 @@ import sharp from 'sharp';
 import path from 'path';
 import fs from 'fs';
 import { Post } from '../models/post.model.js';
-import { User } from '../models/User.model.js';
+import { User } from '../models/user.model.js';
 import {Comment} from '../models/comment.model.js';
 
 export const addNewPost = async (req, res) => {
@@ -42,6 +42,9 @@ export const addNewPost = async (req, res) => {
 
         const filePath = path.join(userPostFolder, filename);
         fs.writeFileSync(filePath, optimizedImageBuffer);
+
+
+        
 
         const imagePath = path.join('uploads', `${user.username}post`, filename);
         const post = await Post.create({
