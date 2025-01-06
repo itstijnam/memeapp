@@ -7,13 +7,17 @@ import userRoute from './routes/user.route.js'
 import postRoute from './routes/post.route.js'
 import messageRoute from './routes/message.route.js'
 import path from 'path'
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 
 dotenv.config({});
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use('/uploads', express.static(path.join('./uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.get('/', (_, res)=>{
     return res.status(200).json({
