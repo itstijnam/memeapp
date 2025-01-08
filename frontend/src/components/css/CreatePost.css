@@ -1,0 +1,10 @@
+.imgPreview{
+    /* border: 2px solid red; */
+    overflow: hidden;
+    height: 150%;
+    transform: translateY(-16%);
+    /* z-index: -1; */
+}
+.imgSubBtn{
+    z-index: 11;
+}

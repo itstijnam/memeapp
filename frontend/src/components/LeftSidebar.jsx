@@ -2,18 +2,18 @@ import { setAuthUser } from '@/redux/authSlice'
 import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar'
 import axios from 'axios'
 import { Heart, Home, LogOut, MessageCircle, PlusSquare, Search, TrendingUp } from 'lucide-react'
-import React from 'react'
+import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
+import CreatePost from './CreatePost'
 
 function LeftSideBar() {
     const navigate = useNavigate();
 
-    const { user } = useSelector((store) => {
-        return store.auth;
-    });
+    const { user } = useSelector((store) => { return store.auth });
     const dispatch = useDispatch();
+    const [open, setOpen] = useState();
 
     const logoutHandler = async () => {
         try {
@@ -37,9 +37,9 @@ function LeftSideBar() {
         { icon: <PlusSquare />, text: 'Create' },
         {
             icon: (
-                <Avatar className='text-red-600 w-9 h-9 rounded-full'>
+                <Avatar className='text-red-600 w-9 h-9 rounded-full overflow-hidden border-2'>
                     <AvatarImage src={user?.profilePicture} className="rounded-full" alt='profile' />
-                    <AvatarFallback>CN</AvatarFallback>
+                    <AvatarFallback></AvatarFallback>
                 </Avatar>
             ), text: user?.username || 'profile'
         },
@@ -48,7 +48,11 @@ function LeftSideBar() {
     ]
     
     const sidebarHandler = (textType) => {
-        if (textType === 'Logout') logoutHandler();
+        if (textType === 'Logout'){
+            logoutHandler();
+        } else if(textType === 'Create'){
+            setOpen(true);
+        }
     }
 
     return (
@@ -68,6 +72,7 @@ function LeftSideBar() {
                     }
                 </div>
             </div>
+            <CreatePost open={open} setOpen={setOpen} />
         </div>
     )
 }
