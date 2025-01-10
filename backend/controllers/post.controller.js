@@ -5,12 +5,16 @@ import fs from 'fs';
 import { Post } from '../models/post.model.js';
 import { User } from '../models/user.model.js';
 import {Comment} from '../models/comment.model.js';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export const addNewPost = async (req, res) => {
     try {
         const { caption } = req.body;
-        const image = req.file; 
-        const authorId = req.id; 
+        const image = req.file; // Get uploaded file
+        const authorId = req.id; // Get user ID from middleware
 
         if (!image) {
             return res.status(400).json({
@@ -27,31 +31,32 @@ export const addNewPost = async (req, res) => {
             });
         }
 
-        const optimizedImageBuffer = await sharp(image.buffer)
-            .resize({ width: 800, height: 800, fit: 'inside' })
-            .toFormat('jpeg', { quality: 80 })
-            .toBuffer();
-
-        const fileExt = '.jpg';
-        const filename = `${Date.now()}-${Math.round(Math.random() * 1E9)}${fileExt}`;
-        const userPostFolder = path.resolve(__dirname, '..', 'uploads', `${user.username}post`);
-
-        if (!fs.existsSync(userPostFolder)) {
-            fs.mkdirSync(userPostFolder, { recursive: true });
+        // Resize and optimize the uploaded image using sharp
+        const uploadDir = path.join(__dirname, '../uploads', `${user.username}post`);
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
         }
 
-        const filePath = path.join(userPostFolder, filename);
-        fs.writeFileSync(filePath, optimizedImageBuffer);
+        const outputFileName = `${Date.now()}-${Math.round(Math.random() * 1e9)}.jpg`;
+        const outputPath = path.join(uploadDir, outputFileName);
 
+        await sharp(image.path)
+            .resize({ width: 800, height: 800, fit: 'inside' })
+            .toFormat('jpg', { quality: 80 })
+            .toFile(outputPath);
+            
+        // Construct the full URL
+        const baseURL = "http://localhost:3000"; // Update this to your actual domain if hosted
+        const relativePath = path.join('uploads', `${user.username}post`, outputFileName).replace(/\\/g, '/');
+        const fullURL = `${baseURL}/${relativePath}`;
 
-        
-
-        const imagePath = path.join('uploads', `${user.username}post`, filename);
+        // Save the post to the database
         const post = await Post.create({
             caption,
-            image: imagePath,
+            image: fullURL, // Save full URL
             author: authorId
         });
+
         user.posts.push(post._id);
         await user.save();
         await post.populate({ path: 'author', select: '-password' });
@@ -62,7 +67,7 @@ export const addNewPost = async (req, res) => {
             success: true
         });
     } catch (error) {
-        console.log(error);
+        console.error(error);
         return res.status(500).json({
             message: 'Internal server error',
             success: false
@@ -74,7 +79,7 @@ export const addNewPost = async (req, res) => {
 export const getAllPost = async (req, res)=>{
     try {
         const post = await Post.find().sort({createdAt: -1})
-        .populate({path:'author', select:'username, profilePicture'})
+        .populate({path:'author', select:'username profilePicture'})
         .populate({
             path: 'comments',
             sort:{createdAt: -1},

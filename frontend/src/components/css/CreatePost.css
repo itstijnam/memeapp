@@ -8,3 +8,20 @@
 .imgSubBtn{
     z-index: 11;
 }
+
+.PostAvatarContainer{
+    /* border: 2px solid yellow; */
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+
+}
+.PostAuthorPP{
+    /* border: 2px solid red; */
+    position: absolute;
+    /* top: 0; */
+    /* height: 100%; */
+    width: auto;
+}

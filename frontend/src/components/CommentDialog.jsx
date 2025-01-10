@@ -4,9 +4,11 @@ import { Link } from 'react-router-dom'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { MoreHorizontal } from 'lucide-react'
 import { Button } from './ui/button'
+import { useSelector } from 'react-redux'
 
-function CommentDialog({ open, setOpen }) {
+function CommentDialog({ open, setOpen, post }) {
   const [text, setText] = useState();
+  const {user} = useSelector((store)=>{return store.auth})
   const changeEventHandler = (e)=>{
     const inputText = e.target.value;
     if(inputText.trim()){
@@ -24,7 +26,7 @@ function CommentDialog({ open, setOpen }) {
         <div className='flex flex-1'>
           <div className='w-1/2'>
             <img
-              src="https://images.unsplash.com/photo-1735835593807-575407b39ed7?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwzMXx8fGVufDB8fHx8fA%3D%3D"
+              src={post?.image}
               alt="post_img"
             />
           </div>
@@ -33,12 +35,12 @@ function CommentDialog({ open, setOpen }) {
               <div className='flex gap-3 items-center'>
                 <Link>
                   <Avatar>
-                    <AvatarImage src="" />
+                    <AvatarImage src={post.author?.profilePicture} />
                     <AvatarFallback>CN</AvatarFallback>
                   </Avatar>
                 </Link>
                 <div>
-                  <Link className='font-semibold text-xs'>username</Link>
+                  <Link className='font-semibold text-xs'>{post.author.username}</Link>
                   {/* <span></span> */}
                 </div>
               </div>
