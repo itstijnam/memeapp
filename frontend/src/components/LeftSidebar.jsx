@@ -37,7 +37,7 @@ function LeftSideBar() {
         { icon: <PlusSquare />, text: 'Create' },
         {
             icon: (
-                <Avatar className='text-red-600 w-9 h-9 rounded-full overflow-hidden border-2'>
+                <Avatar className='text-red-600 w-9 h-9 rounded-full overflow-hidden border-2 flex justify-center items-center'>
                     <AvatarImage src={user?.profilePicture} className="leftSideProfImg" alt='profile' />
                     <AvatarFallback></AvatarFallback>
                 </Avatar>

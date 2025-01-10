@@ -177,7 +177,9 @@ export const addComment = async (req,res)=>{
             text,
             author:commentWaaleKiId,
             post:postId
-        }).populate({
+        })
+
+        await comment.populate({
             path: 'author',
             select: 'username profilePicture'
         });

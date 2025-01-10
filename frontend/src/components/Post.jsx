@@ -15,6 +15,9 @@ function Post({post}) {
     const [open, setOpen] = useState(false);
     const {user} = useSelector((store)=> { return store.auth });
     const {posts} = useSelector((store)=> { return store.post });
+    const [liked, setLiked] = useState(post.likes.includes(user?._id) || false);
+    const [postLike, setPostLike] = useState(post.likes.length)
+    const [comment, setComment] = useState(post.comments);
     const dispatch = useDispatch();
 
     const changeEventHandler  = (e)=>{
@@ -36,6 +39,54 @@ function Post({post}) {
             }
         } catch (error) {
             console.log(error)
+            toast.error(error.response.data.message)
+        }
+    }
+
+    const likeOrDislikeHandler = async (req, res)=>{
+        try {
+            const action = liked ? 'dislike' : 'like'
+            const res = await axios.get(`http://localhost:3000/api/v1/user/${post._id}/${action}`, {withCredentials: true});
+            if(res.data.success){
+                const updatedLikes = liked ? postLike-1 : postLike+1;
+                setPostLike(updatedLikes);
+                setLiked(!liked);
+
+                const updatedPostData = posts.map(p =>
+                    p._id === post._id ? {
+                        ...p,
+                        likes: liked ? p.likes.filter(id !== user._id) : [user._id, ...p.likes]
+                    } : p
+                );
+                dispatch(setPosts(updatedPostData));
+                toast.success(res.data.message);
+            }
+
+        } catch (error) {
+            console.log(error)
+            toast.error(error.response.data.message)
+        }
+    }
+    const commentHandler = async ()=>{
+        try {
+            const res = await axios.post(`http://localhost:3000/api/v1/user/${post._id}/comment`, {text}, {
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                withCredentials: true
+            });
+            if(res.data.success){
+                const updatedCommentData = [...comment, res.data.message];
+                setComment(updatedCommentData);
+                
+                const updatedPostData = posts.map(p=>
+                    p._id === post._id ? {...p, comments: updatedCommentData} : p
+                );
+                dispatch(setPosts(updatedPostData));
+                toast.success(res.data.message);
+                setText('')
+            }
+        } catch (error) {
             toast.error(error.response.data.message)
         }
     }
@@ -70,18 +121,20 @@ function Post({post}) {
             />
             <div className='flex items-center justify-between my-2'>
                 <div className='flex items-center gap-3 '>
-                    <FaRegHeart size={'22px'} className='cursor-pointer hover:text-gray-600' />
+                    {
+                        liked ? <FaHeart onClick={likeOrDislikeHandler} size={'22px'} className='cursor-pointer text-[#ED4956]' /> : <FaRegHeart onClick={likeOrDislikeHandler} size={'22px'} className='cursor-pointer hover:text-gray-600' />
+                    }
                     <MessageCircle onClick={()=>setOpen(true)} className='cursor-pointer hover:text-gray-600' />
                     <Send className='cursor-pointer hover:text-gray-600' />
                 </div>
                 <Bookmark className='cursor-pointer hover:text-gray-600' />
             </div>
-            <span className='font-medium block'>{post.likes.length} likes</span>
+            <span className='font-medium block'>{postLike} likes</span>
             <p className='cursor-pointer'> 
                 <span className='font-medium mr-2'>{post.author.username}</span>
                 {post?.caption}
             </p>
-            <span  onClick={()=>setOpen(true)} className='text-gray-400 text-sm cursor-pointer'>View all 10 comments</span>
+            <span  onClick={()=>setOpen(true)} className='text-gray-400 text-sm cursor-pointer'>View all {comment.length} comments</span>
             <CommentDialog open={open} setOpen={setOpen} post={post}/>
             <div className='flex items-center justify-between'>
                 <input 
@@ -92,7 +145,7 @@ function Post({post}) {
                     className='outline-none text-sm w-full'
                 />
                 {
-                    text && <span className='text-[#3BADF8] cursor-pointer'>Post</span> 
+                    text && <span onClick={commentHandler} className='text-[#3BADF8] cursor-pointer'>Post</span> 
                 }
             </div>
         </div>
