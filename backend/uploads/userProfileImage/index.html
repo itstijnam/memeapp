@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Food Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            text-align: center;
+        }
+        .container {
+            padding: 20px;
+        }
+        .section {
+            background: #fff;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #007bff;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Hospital Food Management System</h1>
+    </header>
+
+    <div class="container">
+        <!-- Manage Patient Details -->
+        <div class="section" id="patient-details">
+            <h2>Manage Patient Details</h2>
+            <form>
+                <label for="patient-name">Patient Name</label>
+                <input type="text" id="patient-name" name="patient-name">
+
+                <label for="diseases">Diseases</label>
+                <textarea id="diseases" name="diseases"></textarea>
+
+                <label for="allergies">Allergies</label>
+                <textarea id="allergies" name="allergies"></textarea>
+
+                <label for="room-number">Room Number</label>
+                <input type="number" id="room-number" name="room-number">
+
+                <label for="bed-number">Bed Number</label>
+                <input type="number" id="bed-number" name="bed-number">
+
+                <label for="floor-number">Floor Number</label>
+                <input type="number" id="floor-number" name="floor-number">
+
+                <label for="age">Age</label>
+                <input type="number" id="age" name="age">
+
+                <label for="gender">Gender</label>
+                <select id="gender" name="gender">
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                </select>
+
+                <label for="contact-info">Contact Information</label>
+                <input type="text" id="contact-info" name="contact-info">
+
+                <label for="emergency-contact">Emergency Contact</label>
+                <input type="text" id="emergency-contact" name="emergency-contact">
+
+                <button type="submit">Save Details</button>
+            </form>
+        </div>
+
+        <!-- Create Food/Diet Charts -->
+        <div class="section" id="diet-chart">
+            <h2>Create Food/Diet Charts</h2>
+            <form>
+                <label for="morning-meal">Morning Meal Plan</label>
+                <textarea id="morning-meal" name="morning-meal" placeholder="Include ingredients and instructions"></textarea>
+
+                <label for="evening-meal">Evening Meal Plan</label>
+                <textarea id="evening-meal" name="evening-meal" placeholder="Include ingredients and instructions"></textarea>
+
+                <label for="night-meal">Night Meal Plan</label>
+                <textarea id="night-meal" name="night-meal" placeholder="Include ingredients and instructions"></textarea>
+
+                <button type="submit">Save Diet Chart</button>
+            </form>
+        </div>
+
+        <!-- Manage Inner Pantry -->
+        <div class="section" id="pantry-management">
+            <h2>Manage Inner Pantry</h2>
+            <form>
+                <label for="staff-name">Staff Name</label>
+                <input type="text" id="staff-name" name="staff-name">
+
+                <label for="contact-info">Contact Information</label>
+                <input type="text" id="contact-info" name="contact-info">
+
+                <label for="location">Pantry Location</label>
+                <input type="text" id="location" name="location">
+
+                <button type="submit">Save Pantry Details</button>
+            </form>
+        </div>
+
+        <!-- Track Meal Preparation and Delivery -->
+        <div class="section" id="meal-tracking">
+            <h2>Track Meal Preparation and Delivery</h2>
+            <form>
+                <label for="meal-prep-status">Meal Preparation Status</label>
+                <select id="meal-prep-status" name="meal-prep-status">
+                    <option value="not-started">Not Started</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="completed">Completed</option>
+                </select>
+
+                <label for="delivery-status">Delivery Status</label>
+                <select id="delivery-status" name="delivery-status">
+                    <option value="pending">Pending</option>
+                    <option value="delivered">Delivered</option>
+                </select>
+
+                <button type="submit">Update Status</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

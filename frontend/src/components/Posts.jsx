@@ -7,7 +7,7 @@ function Posts() {
   return (
     <div>
         {
-            posts.map((post)=> <Post key={post._id} post={post}/>)
+            posts?.map((post)=> <Post key={post._id} post={post}/>)
         }
     </div>
   )
