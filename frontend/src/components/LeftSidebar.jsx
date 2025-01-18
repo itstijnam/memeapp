@@ -57,6 +57,8 @@ function LeftSideBar() {
             setOpen(true);
         }else if(textType === `${user?.username}`){
             navigate(`/profile/${user?._id}`)
+        }else if(textType === 'Home'){
+            navigate('/')
         }
     }
 
