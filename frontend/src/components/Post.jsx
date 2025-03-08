@@ -9,7 +9,7 @@ import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { Button } from './ui/button';
 import { setPosts, setSelectedPost } from '@/redux/postSlice';
 import { Badge } from './ui/badge';
-import CommentDialog from './CommentDialog';
+import CommentDialog from './CommentDialog.jsx';
 import { motion } from 'framer-motion';
 import './css/Post.scss'
 
