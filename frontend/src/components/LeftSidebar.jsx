@@ -130,4 +130,4 @@ function LeftSideBar() {
     )
 }
 
-export default LeftSideBar
+export default LeftSideBar;
