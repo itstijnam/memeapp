@@ -1,7 +1,7 @@
 import { setAuthUser } from '@/redux/authSlice'
 import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar'
 import axios from 'axios'
-import { Heart, Home, LogOut, MessageCircle, PlusSquare, Search, TrendingUp } from 'lucide-react'
+import { Heart, Home, LogOut, MessageCircle, PlusSquare, Search, SwitchCamera, TrendingUp } from 'lucide-react'
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
@@ -10,18 +10,23 @@ import CreatePost from './CreatePost'
 import { setPosts, setSelectedPost } from '@/redux/postSlice'
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 import { Button } from './ui/button'
+import '../components/css/Home.scss'
+import { setDarkMode } from '@/redux/darkModeSlice'
+
 
 function LeftSideBar() {
     const navigate = useNavigate();
 
     const { user } = useSelector((store) => { return store.auth });
+    const { darkMode } = useSelector((store) => { return store.darkMode });
     const {likeNotification} = useSelector(store => store.realTimeNotification);
     const dispatch = useDispatch();
     const [open, setOpen] = useState();
+    console.log(darkMode)
 
     const logoutHandler = async () => {
         try {
-            const res = await axios.get('http://localhost:3000/api/v1/user/logout', { withCredentials: true });
+            const res = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/v1/user/logout`, { withCredentials: true });
             if (res.data.success) {
                 dispatch(setAuthUser(null));
                 dispatch(setSelectedPost(null));
@@ -34,13 +39,17 @@ function LeftSideBar() {
         }
     }
 
+    const darkModeEnabler = ()=>{
+        dispatch(setDarkMode(!darkMode))
+    }
+
+
     const sidebarItems = [
         { icon: <Home />, text: 'Home' },
-        { icon: <Search />, text: 'Search' },
-        { icon: <TrendingUp />, text: 'Explore' },
         { icon: <MessageCircle />, text: 'Messages' },
-        { icon: <Heart />, text: 'Notifications' },
+        // { icon: <TrendingUp />, text: 'Explorer' },
         { icon: <PlusSquare />, text: 'Create' },
+        { icon: <SwitchCamera />, text: 'Dark mode' },
         {
             icon: (
                 <Avatar className='text-red-600 w-9 h-9 rounded-full overflow-hidden border-2 flex justify-center items-center'>
@@ -64,13 +73,18 @@ function LeftSideBar() {
             navigate('/')
         }else if(textType === 'Messages'){
             navigate('/chat')
+        }else if(textType === 'Dark mode'){
+            darkModeEnabler();
         }
+        // else if(textType === 'Explorer'){
+        //     navigate('/meme/expore')
+        // }
     }
 
     return (
-        <div className='fixed top-0 z-10 left-0 px-4 border-r border-gray-300 w-[16%] h-screen'>
+        <div className={`fixed top-0 z-10 left-0 px-4 border-r border-gray-300 w-[16%] h-screen ${darkMode ? 'darkMode' : ''}`}>
             <div className='flex flex-col'>
-                <h1 className='text-center my-8 font-bold text-xl font-serif'>INSTAGRAM</h1>
+                <h1 className='text-center my-8 font-bold text-xl font-serif text-cyan-500'>T O F O</h1>
                 <div>
                     {
                         sidebarItems?.map((item, index) => {

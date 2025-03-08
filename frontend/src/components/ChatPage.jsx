@@ -12,12 +12,13 @@ import { setMessages } from '@/redux/chatSlice';
 function ChatPage() {
     const [textMessage, setTextMessage] = useState('');
     const { user, suggestedUsers, selectedUser } = useSelector(store => store.auth);
+    const {darkMode} = useSelector(store => store.darkMode);
     const {onlineUsers, messages} = useSelector(store => store.chat);
     const dispatch = useDispatch();
 
     const sendMessagehandler = async (recieverId)=>{
         try {
-            const res = await axios.post(`http://localhost:3000/api/v1/message/send/${recieverId}`, {textMessage}, {
+            const res = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/v1/message/send/${recieverId}`, {textMessage}, {
                 headers: {'Content-Type': 'application/json'},
                 withCredentials:true
             });
@@ -37,7 +38,7 @@ function ChatPage() {
     }, [])
 
     return (
-        <div className='flex ml-[16%] h-screen'>
+        <div className={`flex ml-[16%] h-screen ${darkMode ? 'darkMode' : ''} `}>
             <section className='w-full md:w-1/4 my-8'>
                 <h1 className='font-bold mb-4 px-3 text-xl'> {user?.username} </h1>
                 <hr className='mb-4 border-gray-300 ' />
@@ -63,8 +64,8 @@ function ChatPage() {
             </section>
             {
                 selectedUser ? (
-                    <section className='flex-1 border-l border-l-gray-300 flex flex-col h-full'>
-                        <div className='flex gap-3 items-center px-3 py-2 border-b border-gray-300 sticky top-0 bg-white z-10 '>
+                    <section className={`flex-1 border-l border-l-gray-300 flex flex-col h-full`}>
+                        <div className={`flex gap-3 items-center px-3 py-2 border-b border-gray-300 sticky top-0 bg-white z-10 ${darkMode ? 'darkMode' : ''}`}>
                             <Avatar>
                                 <AvatarImage src={selectedUser?.profilePicture} alt='profile_picture' />
                                 <AvatarFallback>CN</AvatarFallback>

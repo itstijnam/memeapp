@@ -17,14 +17,7 @@ const __dirname = path.dirname(__filename);
 dotenv.config({});
 const PORT = process.env.PORT || 3000;
 
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-app.get('/', (_, res)=>{
-    return res.status(200).json({
-        message: "I'm coming from backend",
-        success: true
-    })
-})
+app.use('/uploads', express.static(path.resolve(__dirname, 'uploads')));
 
 //middlewares
 app.use(express.json());
@@ -40,6 +33,13 @@ app.use(cors(corsOption));
 app.use('/api/v1/user', userRoute);
 app.use('/api/v1/user', postRoute);
 app.use('/api/v1/message', messageRoute);
+
+app.use(express.static(path.resolve(__dirname, "../frontend/dist")));
+app.get("*", (req, res) => {
+    const filePath = path.resolve(__dirname, "../frontend/dist", "index.html");
+    res.sendFile(filePath);
+});
+
 
 server.listen(PORT,()=>{
     connectDB();

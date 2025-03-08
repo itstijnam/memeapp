@@ -1,176 +1,162 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar'
-import React, { useState } from 'react'
-import { Dialog, DialogContent, DialogTrigger } from './ui/dialog'
-import { Bookmark, MessageCircle, MoreHorizontal, Send } from 'lucide-react'
-import { Button } from './ui/button'
-import { FaBeer, FaHeart, FaRegHeart } from "react-icons/fa";
-import CommentDialog from './CommentDialog'
-import { useDispatch, useSelector } from 'react-redux'
-import { toast } from 'sonner'
-import axios from 'axios'
-import { setPosts, setSelectedPost } from '@/redux/postSlice'
-import { Badge } from './ui/badge'
+import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import axios from 'axios';
+import { toast } from 'sonner';
+import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
+import { Dialog, DialogContent, DialogTrigger } from './ui/dialog';
+import { Bookmark, MessageCircle, MoreHorizontal, Send } from 'lucide-react';
+import { FaHeart, FaRegHeart } from "react-icons/fa";
+import { Button } from './ui/button';
+import { setPosts, setSelectedPost } from '@/redux/postSlice';
+import { Badge } from './ui/badge';
+import CommentDialog from './CommentDialog';
+import { motion } from 'framer-motion';
+import './css/Post.scss'
 
 function Post({ post }) {
+    const { user } = useSelector((store) => store.auth);
+    const { posts } = useSelector((store) => store.post);
+
     const [text, setText] = useState('');
     const [open, setOpen] = useState(false);
-    const { user } = useSelector((store) => { return store.auth });
-    const { posts } = useSelector((store) => { return store.post });
-    const [liked, setLiked] = useState(post.likes.includes(user?._id) || false);
-    const [postLike, setPostLike] = useState(post.likes.length)
-    const [comment, setComment] = useState(post.comments);
+    const [liked, setLiked] = useState(post.likes?.includes(user?._id) || false);
+    const [postLikeCount, setPostLikeCount] = useState(post.likes?.length);
+    const [comments, setComments] = useState(post.comments || []);
+
     const dispatch = useDispatch();
 
     const changeEventHandler = (e) => {
-        const inputText = e.target.value;
-        if (inputText.trim()) {
-            setText(inputText)
-        } else {
-            setText('');
-        }
-    }
+        setText(e.target.value.trim());
+    };
 
     const deletePostHandler = async () => {
         try {
-            const res = await axios.delete(`http://localhost:3000/api/v1/user/delete/${post?._id}`, { withCredentials: true })
+            const res = await axios.delete(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/v1/user/delete/${post?._id}`, { withCredentials: true });
             if (res.data.success) {
-                const updatedData = posts.filter((postItem) => postItem?._id !== post?._id)
-                dispatch(setPosts(updatedData))
+                dispatch(setPosts(posts.filter(postItem => postItem?._id !== post?._id)));
                 toast.success(res.data.message);
             }
         } catch (error) {
-            console.log(error)
-            toast.error(error.response.data.message)
+            toast.error(error.response?.data?.message || "Failed to delete post");
         }
-    }
+    };
 
-    const likeOrDislikeHandler = async (req, res) => {
+    const likeOrDislikeHandler = async () => {
         try {
-            const action = liked ? 'dislike' : 'like'
-            const res = await axios.get(`http://localhost:3000/api/v1/user/${post._id}/${action}`, { withCredentials: true });
+            const action = liked ? 'dislike' : 'like';
+            const res = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/v1/user/${post._id}/${action}`, { withCredentials: true });
+
             if (res.data.success) {
-                const updatedLikes = liked ? postLike - 1 : postLike + 1;
-                setPostLike(updatedLikes);
                 setLiked(!liked);
+                setPostLikeCount(liked ? postLikeCount - 1 : postLikeCount + 1);
 
-                const updatedPostData = posts.map(p =>
-                    p._id === post._id ? {
-                        ...p,
-                        likes: liked ? p.likes.filter(id !== user._id) : [user._id, ...p.likes]
-                    } : p
+                const updatedPosts = posts.map(p => p._id === post._id
+                    ? { ...p, likes: liked ? p.likes.filter(id => id !== user._id) : [user._id, ...p.likes] }
+                    : p
                 );
-                dispatch(setPosts(updatedPostData));
+                dispatch(setPosts(updatedPosts));
                 toast.success(res.data.message);
             }
-
         } catch (error) {
-            console.log(error)
-            toast.error(error.response.data.message)
+            toast.error(error.response?.data?.message || "Error updating like status");
         }
-    }
+    };
+
     const commentHandler = async () => {
-        try {
-            const res = await axios.post(`http://localhost:3000/api/v1/user/${post._id}/comment`, { text }, {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                withCredentials: true
-            });
-            if (res.data.success) {
-                const updatedCommentData = [...comment, res.data.comment];
-                setComment(updatedCommentData);
+        if (!text) return;
 
-                const updatedPostData = posts.map(p =>
-                    p._id === post._id ? { ...p, comments: updatedCommentData } : p
-                );
-                dispatch(setPosts(updatedPostData));
+        try {
+            const res = await axios.post(
+                `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/v1/user/${post._id}/comment`,
+                { text },
+                { headers: { 'Content-Type': 'application/json' }, withCredentials: true }
+            );
+
+            if (res.data.success) {
+                const updatedComments = [...comments, res.data.comment];
+                setComments(updatedComments);
+
+                const updatedPosts = posts.map(p => p._id === post._id ? { ...p, comments: updatedComments } : p);
+                dispatch(setPosts(updatedPosts));
+                dispatch(setSelectedPost({ ...post, comments: updatedComments }));
+
                 toast.success(res.data.message);
-                setText('')
+                setText('');
             }
         } catch (error) {
-            toast.error(error.response.data.message)
+            toast.error(error.response?.data?.message || "Error adding comment");
         }
-    }
+    };
+
+    const bookmarkHandler = async () => {
+        try {
+            const res = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/v1/user/${post._id}/bookmark`, { withCredentials: true });
+            if (res.data.success) {
+                toast.success(res.data.message);
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Error bookmarking post");
+        }
+    };
+
     return (
-        <div className='my-8 w-full max-w-sm mx-auto'>
-            <div className='flex items-center justify-between'>
-                <div className='flex items-center gap-3 '>
-                    <Avatar className='PostAvatarContainer bg-gray-50 text-white p-1 rounded-full w-9 h-9 flex justify-center text-center'>
-                        <AvatarImage src={post.author.profilePicture} className='PostAuthorPP' alt='profile_image' onClick={likeOrDislikeHandler} />
+        <motion.div
+            className="my-8 w-full max-w-sm mx-auto p-5 rounded-xl shadow-lg bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-white POST"
+            whileHover={{ scale: 1.05, boxShadow: "0px 10px 20px rgba(0,0,0,0.3)" }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 200 }}
+        >
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <Avatar className="w-10 h-10">
+                        <AvatarImage src={post.author.profilePicture} alt="profile_image" />
                         <AvatarFallback>CN</AvatarFallback>
                     </Avatar>
-                    <div className='flex gap-2'> 
-                        <h1>{post.author.username}</h1>
-                        {user?._id === post?.author?._id && <Badge>Author</Badge> }  
+                    <div className="flex gap-2 items-center">
+                        <h1 className="font-semibold">{post.author.username}</h1>
+                        {user?._id === post?.author?._id && <Badge className="bg-yellow-500">Author</Badge>}
                     </div>
                 </div>
                 <Dialog>
                     <DialogTrigger asChild>
-                        <MoreHorizontal className='cursor-pointer' />
+                        <MoreHorizontal className="cursor-pointer" />
                     </DialogTrigger>
                     <DialogContent className="flex flex-col items-center text-sm text-center">
-                        <Button variant="ghost" className="cursor-pointer w-fit text-[#ED4956] font-bold" >Unfollow</Button>
-                        <Button variant="ghost" className="cursor-pointer w-fit font-bold" >Add to favourites</Button>
-                        {
-                            user && user?._id === post?.author._id && <Button onClick={deletePostHandler} variant="ghost" className="cursor-pointer w-fit font-bold" >Delete</Button>
-                        }
-
+                        <Button variant="ghost" className="cursor-pointer w-fit text-red-500 font-bold">Unfollow</Button>
+                        <Button variant="ghost" className="cursor-pointer w-fit font-bold">Add to favourites</Button>
+                        {user?._id === post?.author?._id && <Button onClick={deletePostHandler} variant="ghost" className="cursor-pointer w-fit font-bold">Delete</Button>}
                     </DialogContent>
                 </Dialog>
             </div>
-            <img
-                className='rounded-sm my-2 w-full aspect-square object-cover'
+
+            <motion.img
                 src={post?.image}
                 alt="post_img"
+                className="rounded-lg my-3 w-full object-cover shadow-xl"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
             />
-            <div className='flex items-center justify-between my-2'>
-                <div className='flex items-center gap-3 '>
-                    {
-                        liked ? <FaHeart onClick={likeOrDislikeHandler} size={'22px'} className='cursor-pointer text-[#ED4956]' /> : <FaRegHeart onClick={likeOrDislikeHandler} size={'22px'} className='cursor-pointer hover:text-gray-600' />
-                    }
-                    <MessageCircle
-                        onClick={() => {
-                            dispatch(setSelectedPost(post));
-                            setOpen(true)
-                        }}
-                        className='cursor-pointer hover:text-gray-600'
-                    />
-                    <Send className='cursor-pointer hover:text-gray-600' />
+
+            <div className="flex items-center justify-between my-2">
+                <div className="flex items-center gap-3">
+                    <motion.div whileTap={{ scale: 1.2 }}>
+                        {liked ? 
+                            <FaHeart onClick={likeOrDislikeHandler} size="22px" className="cursor-pointer text-red-500 hover:scale-110 transition" />
+                            : <FaRegHeart onClick={likeOrDislikeHandler} size="22px" className="cursor-pointer hover:scale-110 transition" />}
+                    </motion.div>
+                    <MessageCircle className="cursor-pointer hover:text-blue-400 transition" onClick={() => { dispatch(setSelectedPost(post)); setOpen(true); }} />
+                    <Send className="cursor-pointer hover:text-green-400 transition" />
                 </div>
-                <Bookmark className='cursor-pointer hover:text-gray-600' />
+                <Bookmark className="cursor-pointer hover:text-yellow-400 transition" onClick={bookmarkHandler} />
             </div>
-            <span className='font-medium block'>{postLike} likes</span>
-            <p className='cursor-pointer'>
-                <span className='font-medium mr-2'>{post.author.username}</span>
-                {post?.caption}
-            </p>
-            {
-                comment.length > 0 && (
-                    <span
-                        onClick={() => {
-                            dispatch(setSelectedPost(post));
-                            setOpen(true)
-                        }}
-                        className='text-gray-400 text-sm cursor-pointer'
-                    >View all {comment.length} comments</span>
-                )
-            }
+
+            <span className="font-medium">{postLikeCount} likes</span>
+            <p><span className="font-medium mr-2">{post.author.username}</span>{post?.caption}</p>
 
             <CommentDialog open={open} setOpen={setOpen} post={post} />
-            <div className='flex items-center justify-between'>
-                <input
-                    type="text"
-                    placeholder='Add a comment...'
-                    value={text}
-                    onChange={changeEventHandler}
-                    className='outline-none text-sm w-full'
-                />
-                {
-                    text && <span onClick={commentHandler} className='text-[#3BADF8] cursor-pointer'>Post</span>
-                }
-            </div>
-        </div>
-    )
+        </motion.div>
+    );
 }
 
-export default Post
+export default Post;

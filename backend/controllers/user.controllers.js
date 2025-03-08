@@ -6,6 +6,8 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import path from 'path';
 import fs from 'fs';
+import getDatauri from "../utils/datauri.js";
+import cloudinary from "../utils/cloudinary.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -133,29 +135,25 @@ export const editProfile = async (req, res) => {
         const { bio, gender } = req.body;
         const profilePicture = req.file;
 
+        let cloudResponse;
+
+        if(profilePicture){
+            const fileUri = getDatauri(profilePicture);
+            cloudResponse = await cloudinary.uploader.upload(fileUri);
+        }
+
         const user = await User.findById(userId).select('-password');
         if (!user) {
             return res.status(404).json({
                 message: 'User not found',
                 success: false
             })
-        }
+        }   
 
-        const uploadDir = path.join(__dirname, '../uploads', `${user.username}post`);
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
-        }
-
-        const outputFileName = `${Date.now()}-${Math.round(Math.random() * 1e9)}.jpg`;
-        const baseURL = "http://localhost:3000"; // Update this to your actual domain if hosted
-        const relativePath = path.join('uploads', `${user.username}post`, outputFileName).replace(/\\/g, '/');
-        const fullURL = `${baseURL}/${relativePath}`;
 
         if (bio) user.bio = bio;
         if (gender) user.gender = gender;
-        if (profilePicture) {
-            user.profilePicture = fullURL; // Save file path
-        }
+        if (profilePicture) user.profilePicture = cloudResponse.secure_url;
 
         await user.save();
         return res.status(200).json({

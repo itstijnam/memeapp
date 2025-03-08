@@ -15,6 +15,7 @@ function Profile() {
   const isLoggedInUserProfile = user?._id === userProfile?._id ;
   const isFollowing = false;
   const [activeTab, setActiveTab] = useState('posts')
+  const {darkMode} = useSelector(store => store.darkMode);
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
@@ -23,7 +24,7 @@ function Profile() {
   const displayedPost = activeTab === 'posts' ? userProfile?.posts : userProfile?.bookmarks
 
   return (
-    <div className='flex max-w-5xl justify-center mx-auto pl-10'>
+    <div className={`flex max-w-5xl justify-center mx-auto pl-10 ${darkMode ? 'darkMode' : ''} `}>
       {
         // console.log(userProfile);
       }

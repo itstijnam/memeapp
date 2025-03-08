@@ -1,11 +1,11 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
 import axios from 'axios'
 import { toast } from 'sonner'
 import { Link, useNavigate } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { setAuthUser } from '@/redux/authSlice'
 
 function Login() {
@@ -16,6 +16,7 @@ function Login() {
   })
 
   const [loading, setLoading] = useState(false);
+  const {user} = useSelector(store => store.auth)
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const changeEventHandler = (e)=>{
@@ -26,7 +27,7 @@ function Login() {
     e.preventDefault();
     try {
       setLoading(true); 
-      const res = await axios.post('http://localhost:3000/api/v1/user/login', input, {
+      const res = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/v1/user/login`, input, {
         headers: {
           'Content-Type': 'application/json'
         },
@@ -47,6 +48,12 @@ function Login() {
       setLoading(false);
     }
   }
+
+  useEffect(()=>{
+    if(user){
+      navigate('/')
+    }
+  },[])
 
   return (
     <>

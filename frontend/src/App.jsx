@@ -12,11 +12,13 @@ import { useEffect } from 'react'
 import { setSocket } from './redux/socketSlice'
 import { setOnlineUsers } from './redux/chatSlice'
 import { setLikeNotification } from './redux/rtnSlice'
+import ProtectedRoute from './components/ProtectedRoute'
+import MemeExplorer from './components/MemeExplorer'
 
 const browserRouter = createBrowserRouter([
   {
     path: '/',
-    element: <MainLayout />,
+    element: <ProtectedRoute>  <MainLayout /> </ProtectedRoute>,
     children: [
       {
         path: '/',
@@ -24,15 +26,19 @@ const browserRouter = createBrowserRouter([
       },
       {
         path: '/profile/:id',
-        element: <Profile />
+        element: <ProtectedRoute> <Profile /> </ProtectedRoute>
       },
       {
         path: '/account/edit',
-        element: <EditProfile />
+        element: <ProtectedRoute> <EditProfile /> </ProtectedRoute>
+      },
+      {
+        path: '/meme/expore',
+        element: <ProtectedRoute> <MemeExplorer /> </ProtectedRoute>
       },
       {
         path: '/chat',
-        element: <ChatPage />
+        element: <ProtectedRoute> <ChatPage /> </ProtectedRoute>
       }
     ]
   },
@@ -49,11 +55,12 @@ const browserRouter = createBrowserRouter([
 function App() {
   const { user } = useSelector(store => store.auth);
   const {socket} = useSelector(store=> store.socketio);
+  const {darkMode} = useSelector(store => store.darkMode);
   const dispatch = useDispatch();
 
   useEffect(() => {
     if (user) {
-      const socketio = io('http://localhost:3000', {
+      const socketio = io(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}`, {
         query: {
           userId: user?._id
         },

@@ -8,6 +8,7 @@ import { Comment } from '../models/comment.model.js';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { getRecieverSocketId, io } from '../socket/socket.js';
+import cloudinary from '../utils/cloudinary.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -15,8 +16,8 @@ const __dirname = dirname(__filename);
 export const addNewPost = async (req, res) => {
     try {
         const { caption } = req.body;
-        const image = req.file; // Get uploaded file
-        const authorId = req.id; // Get user ID from middleware
+        const image = req.file;
+        const authorId = req.id;
 
         if (!image) {
             return res.status(400).json({
@@ -33,29 +34,18 @@ export const addNewPost = async (req, res) => {
             });
         }
 
-        // Resize and optimize the uploaded image using sharp
-        const uploadDir = path.join(__dirname, '../uploads', `${user.username}post`);
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
-        }
+        const optimizedImageBuffer = await sharp(image.buffer)
+        .resize({width: 800, height:800, fit: 'inside'})
+        .toFormat('jpeg', {quality:80})
+        .toBuffer();
 
-        const outputFileName = `${Date.now()}-${Math.round(Math.random() * 1e9)}.jpg`;
-        const outputPath = path.join(uploadDir, outputFileName);
+        const fileUri = `data:image/jpeg;base64,${optimizedImageBuffer.toString('base64')}`;
+        const cloudResponse = await cloudinary.uploader.upload(fileUri);
+        
 
-        await sharp(image.path)
-            .resize({ width: 800, height: 800, fit: 'inside' })
-            .toFormat('jpg', { quality: 80 })
-            .toFile(outputPath);
-
-        // Construct the full URL
-        const baseURL = "http://localhost:3000"; // Update this to your actual domain if hosted
-        const relativePath = path.join('uploads', `${user.username}post`, outputFileName).replace(/\\/g, '/');
-        const fullURL = `${baseURL}/${relativePath}`;
-
-        // Save the post to the database
         const post = await Post.create({
             caption,
-            image: fullURL, // Save full URL
+            image: cloudResponse.secure_url,
             author: authorId
         });
 
@@ -80,6 +70,7 @@ export const addNewPost = async (req, res) => {
 
 export const getAllPost = async (req, res) => {
     try {
+        const {dataFilter} = req.body;
         const post = await Post.find().sort({ createdAt: -1 })
             .populate({ path: 'author', select: 'username profilePicture' })
             .populate({
@@ -128,24 +119,22 @@ export const likePost = async (req, res) => {
         const post = await Post.findById(postId);
         if (!post) return res.status(404).json({ message: 'Post not found', success: false });
 
-        // like logic started
         await post.updateOne({ $addToSet: { likes: likeKarneWaaleUserkiId } })
         await post.save()
 
-        // socket.io will be here for notification
-        const user = await User.findById(likeKarneWaaleUserkiId).select('username profilePicture');
+        const user = await User.findById(likeKarneWaaleUserkiId).select('username profilePicture')
         const postOwnerId = post.author.toString();
-        if (postOwnerId !== likeKarneWaaleUserkiId) {
+        if(postOwnerId !== likeKarneWaaleUserkiId){
             const notification = {
                 type: 'like',
                 userId: likeKarneWaaleUserkiId,
                 userDetails: user,
-                postId,
                 message: 'Your post was liked'
             }
-            const postOwnerSocketId = getRecieverSocketId(postOwnerId);
-            io.to(postOwnerSocketId).emit('notification', notification);
+            const postOwnerSocketId = getRecieverSocketId(postOwnerId)
+            io.to(postOwnerSocketId).emit('notification', notification)
         }
+
 
         return res.status(200).json({
             message: 'Post Liked',

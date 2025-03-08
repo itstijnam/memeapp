@@ -16,6 +16,7 @@ function CommentDialog({ open, setOpen }) {
   const { user } = useSelector((store) => { return store.auth })
   const { selectedPost, posts } = useSelector((store) => store.post)
   const [comment, setComment] = useState([]);
+  const {darkMode} =  useSelector(store => store.darkMode)
   const dispatch = useDispatch()
 
   useEffect(()=>{
@@ -34,7 +35,7 @@ function CommentDialog({ open, setOpen }) {
   }
   const sendMessageHandler = async () => {
     try {
-      const res = await axios.post(`http://localhost:3000/api/v1/user/${selectedPost._id}/comment`, { text }, {
+      const res = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/v1/user/${selectedPost._id}/comment`, { text }, {
         headers: {
           'Content-Type': 'application/json'
         },
@@ -56,9 +57,9 @@ function CommentDialog({ open, setOpen }) {
     }
   }
   return (
-    <Dialog className='w-96' open={open}>
-      <DialogContent className='w-screen' onInteractOutside={() => setOpen(false)}>
-        <div className='flex flex-1'>
+    <Dialog className={`w-96 ${darkMode ? 'darkMode' : ''} `} open={open}>
+      <DialogContent className={`w-screen ${darkMode ? 'darkMode' : ''} `} onInteractOutside={() => setOpen(false)}>
+        <div className={`flex flex-1 ${darkMode ? 'darkMode' : ''} `}>
           <div className='w-96'>
             <img
               src={selectedPost?.image}
@@ -66,7 +67,7 @@ function CommentDialog({ open, setOpen }) {
               className='h-96'
             />
           </div>
-          <div className='w-96 flex flex-col justify-between'>
+          <div className={`w-96 flex flex-col justify-between ${darkMode ? 'darkMode' : ''} `}>
             <div className='flex items-center justify-between p-4'>
               <div className='flex gap-3 items-center'>
                 <Link>
@@ -95,15 +96,15 @@ function CommentDialog({ open, setOpen }) {
               </Dialog>
             </div>
             <hr />
-            <div className='flex-1 overflow-y-auto max-h-96 p-4 bg-white border-none'>
+            <div className={`flex-1 overflow-y-auto max-h-96 p-4 bg-white border-none ${darkMode ? 'darkMode' : ''}`}>
               {
                 comment.map((comment) => <Comment key={comment._id} comment={comment} />)
               }
             </div>
-            <div className='p-4 bg-white'>
+            <div className={`p-4 bg-white  ${darkMode ? 'darkMode' : ''}`}>
               <div className='flex items-center gap-2'>
                 <input type="text" placeholder='Add a comment...' value={text} onChange={changeEventHandler} className='w-full text-sm outline-none border-gray-300 p-2 rounded' />
-                <Button disabled={!text} onClick={sendMessageHandler} variant="outline">Send</Button>
+                <Button disabled={!text} onClick={sendMessageHandler} variant="outline" className={` ${darkMode ? 'darkMode' : ''}`} >Send</Button>
               </div>
             </div>
           </div>

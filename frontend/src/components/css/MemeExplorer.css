@@ -1,0 +1,24 @@
+.MemeExplorer{
+    border: 2px solid red;
+    position: absolute;
+    right: 3%;
+    width: 80%;
+    height: auto;
+    height: 50rem;
+}
+.MemeAuthorInfo{
+    border: 2px solid red;
+    height: 8rem;
+    width: 7rem;
+
+}
+.MemeAuthorImage{
+    border: 2px solid green;
+    height: 2rem;
+    width: 2rem;
+    overflow: hidden;
+
+}
+.MemeAuthorImage img{
+    width: 100%;
+}

@@ -5,9 +5,10 @@ import { Link } from 'react-router-dom'
 import SuggestedUsers from './SuggestedUsers'
 
 function RightSidebar() {
-  const { user } = useSelector(store => store.auth)
+  const { user } = useSelector(store => store.auth);
+  const {darkMode} = useSelector(store => store.darkMode);
   return (
-    <div className='w-fit my-10 pr-36'>
+    <div className={`w-fit my-10 pr-36 ${darkMode ? 'darkMode' : ''} `}>
       <div className='flex items-center gap-2'>
         <Link to={`/profile/${user?._id}`}>
           <Avatar className='flex justify-center items-center'>

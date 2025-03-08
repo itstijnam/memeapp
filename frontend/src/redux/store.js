@@ -4,6 +4,7 @@ import postSlice from './postSlice.js'
 import socketSlice from './socketSlice.js'
 import chatSlice from './chatSlice.js'
 import rtnSlice from './rtnSlice.js'
+import darkModeSlice from './darkModeSlice.js'
 
 import {
     persistReducer,
@@ -28,6 +29,7 @@ const rootReducer = combineReducers({
     socketio: socketSlice,
     chat: chatSlice,
     realTimeNotification: rtnSlice,
+    darkMode: darkModeSlice,
 })
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)
