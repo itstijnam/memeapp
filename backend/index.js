@@ -34,9 +34,9 @@ app.use('/api/v1/user', userRoute);
 app.use('/api/v1/user', postRoute);
 app.use('/api/v1/message', messageRoute);
 
-app.use(express.static(path.resolve(__dirname, "../frontend/dist")));
+app.use(express.static(path.resolve(__dirname,"../", "frontend/dist")));
 app.get("*", (req, res) => {
-    const filePath = path.resolve(__dirname, "../frontend/dist", "index.html");
+    const filePath = path.resolve(__dirname,"frontend/dist", "index.html");
     res.sendFile(filePath);
 });
 
