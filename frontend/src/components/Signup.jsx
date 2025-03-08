@@ -26,7 +26,7 @@ function Signup() {
     e.preventDefault();
     try {
       setLoading(true); 
-      const res = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/v1/user/register`, input, {
+      const res = await axios.post(`https://memeapp-4a8f.onrender.com/api/v1/user/register`, input, {
         headers: {
           'Content-Type': 'application/json'
         },

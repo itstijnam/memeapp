@@ -26,7 +26,7 @@ function LeftSideBar() {
 
     const logoutHandler = async () => {
         try {
-            const res = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/v1/user/logout`, { withCredentials: true });
+            const res = await axios.get(`https://memeapp-4a8f.onrender.com/api/v1/user/logout`, { withCredentials: true });
             if (res.data.success) {
                 dispatch(setAuthUser(null));
                 dispatch(setSelectedPost(null));

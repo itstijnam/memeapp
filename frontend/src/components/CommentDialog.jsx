@@ -35,7 +35,7 @@ function CommentDialog({ open, setOpen }) {
   }
   const sendMessageHandler = async () => {
     try {
-      const res = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/v1/user/${selectedPost._id}/comment`, { text }, {
+      const res = await axios.post(`https://memeapp-4a8f.onrender.com/api/v1/user/${selectedPost._id}/comment`, { text }, {
         headers: {
           'Content-Type': 'application/json'
         },

@@ -8,7 +8,7 @@ const useGetUserProfile = (userId) => {
     useEffect(() => {
         const fetchUserProfile = async () => {
             try {
-                const res = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/v1/user/${userId}/profile`, { withCredentials: true });
+                const res = await axios.get(`https://memeapp-4a8f.onrender.com/api/v1/user/${userId}/profile`, { withCredentials: true });
                 if (res.data.success) {
                     dispatch(setUserProfile(res.data.user));
                     console.log(res.data.user)
