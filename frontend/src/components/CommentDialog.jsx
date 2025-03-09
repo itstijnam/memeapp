@@ -35,7 +35,7 @@ function CommentDialog({ open, setOpen }) {
   }
   const sendMessageHandler = async () => {
     try {
-      const res = await axios.post(`http://localhost:3000/api/v1/user/${selectedPost._id}/comment`, { text }, {
+      const res = await axios.post(`https://memeapp-4a8f.onrender.com/api/v1/user/${selectedPost._id}/comment`, { text }, {
         headers: {
           'Content-Type': 'application/json'
         },

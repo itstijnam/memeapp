@@ -18,7 +18,7 @@ function ChatPage() {
 
     const sendMessagehandler = async (recieverId)=>{
         try {
-            const res = await axios.post(`http://localhost:3000/api/v1/message/send/${recieverId}`, {textMessage}, {
+            const res = await axios.post(`https://memeapp-4a8f.onrender.com/api/v1/message/send/${recieverId}`, {textMessage}, {
                 headers: {'Content-Type': 'application/json'},
                 withCredentials:true
             });

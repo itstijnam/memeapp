@@ -27,7 +27,7 @@ function Login() {
     e.preventDefault();
     try {
       setLoading(true); 
-      const res = await axios.post(`http://localhost:3000/api/v1/user/login`, input, {
+      const res = await axios.post(`https://memeapp-4a8f.onrender.com/api/v1/user/login`, input, {
         headers: {
           'Content-Type': 'application/json'
         },
