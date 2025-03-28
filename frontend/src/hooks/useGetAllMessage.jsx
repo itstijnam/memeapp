@@ -9,7 +9,7 @@ const useGetAllMessage = (id) => {
     useEffect(() => {
         const fetchAllMessage = async () => {
             try {
-                const res = await axios.get(`https://memeapp-4a8f.onrender.com/api/v1/message/all/${selectedUser?._id}`, { withCredentials: true });
+                const res = await axios.get(`http://localhost:3000/api/v1/message/all/${selectedUser?._id}`, { withCredentials: true });
                 if (res.data.success) {
                     dispatch(setMessages(res.data.messages));
                 }

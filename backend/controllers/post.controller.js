@@ -70,7 +70,6 @@ export const addNewPost = async (req, res) => {
 
 export const getAllPost = async (req, res) => {
     try {
-        const {dataFilter} = req.body;
         const post = await Post.find().sort({ createdAt: -1 })
             .populate({ path: 'author', select: 'username profilePicture' })
             .populate({
@@ -81,6 +80,7 @@ export const getAllPost = async (req, res) => {
                     select: 'username profilePicture'
                 }
             });
+
         return res.status(200).json({
             post,
             success: true
