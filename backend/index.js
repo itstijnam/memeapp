@@ -25,7 +25,7 @@ app.use(cookieParser());
 app.use(express.urlencoded({extended:true}));
 
 const corsOption = {
-    origin: '*',
+    origin: ['http://localhost:5173', 'https://next-wave-task.vercel.app'],
     credentials: true
 }
 app.use(cors(corsOption));
